@@ -53,33 +53,16 @@ def user_language(func):
 @user_language
 def start(bot, update):
     """
-        Shows an welcome message and help info about the available commands.
+        Greets the user and provides clear instructions on how to get support.
+        Also serves as the /help command.
     """
     me = bot.get_me()
-    if config.START_MESSAGE:
-        msg = config.START_MESSAGE
-    else:
-        msg = _("Hey there! I'm {0}, your friendly support bot.\n\nReady to help. What's up?\n").format(me.first_name)
+    msg = _("Hey there! I'm {0}, the official support bot.\n\n"
+            "To get help, just send your question, feedback, or issue directly into this chat. "
+            "You can include photos and files. Our team will see it and get back to you as soon as possible.\n\n"
+            "You can use /settings to change your language.").format(me.first_name)
 
-    main_menu_keyboard = [
-        [telegram.KeyboardButton(_("/support - Get help"))],
-        [telegram.KeyboardButton(_("/settings - Change language"))]
-    ]
-    reply_kb_markup = telegram.ReplyKeyboardMarkup(main_menu_keyboard,
-                                                   resize_keyboard=True,
-                                                   one_time_keyboard=True)
-    bot.send_message(chat_id=update.message.chat_id,
-                     text=msg,
-                     reply_markup=reply_kb_markup)
-
-
-@user_language
-def support(bot, update):
-    """
-        Sends the support message. Some kind of "How can I help you?".
-    """
-    bot.send_message(chat_id=update.message.chat_id,
-                     text=_("Go for it! Just type your question or issue below."))
+    bot.send_message(chat_id=update.message.chat_id, text=msg)
 
 
 @user_language
@@ -166,14 +149,13 @@ def unknown(bot, update):
     """
         Placeholder command when the user sends an unknown command.
     """
-    msg = _("Oops, not sure what that command does. Try /support or /settings.")
+    msg = _("Oops, not sure what that command does. You can use /settings or just send a message for support.")
     bot.send_message(chat_id=update.message.chat_id, text=msg)
 
 
 # --- Handler Definitions ---
 
 start_handler = CommandHandler('start', start)
-support_handler = CommandHandler('support', support)
 settings_handler = CommandHandler('settings', settings)
 help_handler = CommandHandler('help', start)
 
@@ -192,7 +174,6 @@ support_msg_handler = MessageHandler([Filters.text], support_message)
 # The order is critical for the logic to work correctly.
 
 dispatcher.add_handler(start_handler)
-dispatcher.add_handler(support_handler)
 dispatcher.add_handler(settings_handler)
 dispatcher.add_handler(help_handler)
 

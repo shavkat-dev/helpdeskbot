@@ -14,7 +14,7 @@ updater = Updater(token=config.TOKEN)
 dispatcher = updater.dispatcher
 
 # Config the translations
-lang_pt = gettext.translation("pt_BR", localedir="locale", languages=["pt_BR"])
+lang_pt = gettext.translation("helpdeskbot", localedir="locale", languages=["pt_BR"])
 def _(msg): return msg
 
 # Connecting to Redis db

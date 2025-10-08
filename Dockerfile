@@ -1,26 +1,26 @@
-# syntax=docker/dockerfile:1
 # Dockerfile
 
 # 1. Base Image
-# We start with a slim, official Python image. This keeps our image size small.
-# Using a specific version (e.g., 3.9) is good practice for reproducibility.
 FROM python:3.9-slim
 
-# 2. Set the working directory inside the container
-# This is where our application code will live.
-WORKDIR /app
+# 2. Apply OS security patches
+# This is a critical security step. It updates the package lists and installs
+# the latest security patches for the underlying OS packages.
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
-# 3. Copy dependencies file and install them
-# We copy only the requirements file first to leverage Docker's layer caching.
-# If requirements.txt doesn't change, Docker won't re-run this layer, speeding up builds.
+# 3. Install OS-level dependencies for localization
+# The 'gettext' package provides the 'msgfmt' command needed to compile .po files.
+RUN apt-get install -y gettext
+
+# 4. Copy and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 4. Copy the application code into the container
-# This copies the rest of the source code into the /app directory.
+# 5. Copy the application code
 COPY . .
 
-# 5. Command to run the application
-# This is the command that will be executed when the container starts.
-# It launches the bot by importing and starting the 'updater'.
+# 6. Compile translation files
+RUN msgfmt locale/pt_BR/LC_MESSAGES/pt_BR.po -o locale/pt_BR/LC_MESSAGES/helpdeskbot.mo
+
+# 7. Command to run the application
 CMD ["python", "-c", "from main import updater; updater.start_polling()"]

@@ -16,22 +16,20 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: main.py\n"
 
-#: main.py:53
-#, python-brace-format
-msgid "Hey there! I'm {0}, your friendly support bot.\n\nReady to help. What's up?\n"
-msgstr "Oi! Eu sou {0}, seu bot de suporte super amigo.\n\nPronto para ajudar. O que manda?\n"
-
-#: main.py:61
-msgid "/support - Get help\n"
-msgstr "/support - Obter ajuda\n"
-
-#: main.py:62
-msgid "/settings - Change language\n"
-msgstr "/settings - Mudar idioma\n"
-
-#: main.py:83
-msgid "Go for it! Just type your question or issue below."
-msgstr "Manda ver! É só digitar sua dúvida ou problema aqui embaixo."
+msgid ""
+"Hey there! I'm {0}, the official support bot.\n"
+"\n"
+"To get help, just send your question, feedback, or issue directly into this chat. "
+"You can include photos and files. Our team will see it and get back to you as soon as possible.\n"
+"\n"
+"You can use /settings to change your language."
+msgstr ""
+"Oi! Eu sou o {0}, o bot de suporte oficial.\n"
+"\n"
+"Para obter ajuda, é só enviar sua pergunta, feedback ou problema diretamente neste chat. "
+"Você pode incluir fotos e arquivos. Nossa equipe verá e responderá assim que possível.\n"
+"\n"
+"Você pode usar /settings para mudar o idioma."
 
 #: main.py:112
 msgid "Pick your language:\n"
@@ -46,9 +44,8 @@ msgstr "Tudo certo! Vamos conversar em {0} a partir de agora."
 msgid "Hmm, I don't recognize that language. Please pick from the list."
 msgstr "Hmm, não reconheço esse idioma. Por favor, escolha na lista."
 
-#: main.py:157
-msgid "Oops, not sure what that command does. Try /support or /settings."
-msgstr "Ops, não sei o que esse comando faz. Tente /support ou /settings."
+msgid "Oops, not sure what that command does. You can use /settings or just send a message for support."
+msgstr "Ops, não sei o que esse comando faz. Você pode usar /settings ou apenas enviar uma mensagem para falar com o suporte."
 
 #~ msgid "I'm Via Livre Bot and I came here to help you.\n"
 #~ msgstr "Eu sou o Via Livre Bot e vim aqui para te ajudar.\n"

@@ -34,7 +34,3 @@ REDIS_PORT: int = _optional_int("REDIS_PORT", 6379)
 REDIS_DB: int = _optional_int("REDIS_DB", 0)
 
 START_MESSAGE: Optional[str] = _optional_str("START_MESSAGE")
-REPLY_MESSAGE: str = _optional_str(
-    "REPLY_MESSAGE",
-    "Give me some time to think. Soon I will return to you with an answer.",
-) or "Give me some time to think. Soon I will return to you with an answer."

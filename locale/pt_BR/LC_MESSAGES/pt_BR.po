@@ -16,59 +16,39 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: main.py\n"
 
-#: main.py:57
-msgid "Hello!\n"
-msgstr "Olá!\n"
-
-#: main.py:58
+#: main.py:53
 #, python-brace-format
-msgid "I'm {0} and I came here to help you.\n"
-msgstr "Eu sou {0} e vim aqui para te ajudar.\n"
-
-#: main.py:59
-msgid ""
-"What would you like to do?\n"
-"\n"
-msgstr ""
-"O que você gostaria de fazer?\n"
-"\n"
-
-#: main.py:60
-msgid "/support - Opens a new support ticket\n"
-msgstr "/support - Abre um novo ticket de suporte\n"
+msgid "Hey there! I'm {0}, your friendly support bot.\n\nReady to help. What's up?\n"
+msgstr "Oi! Eu sou {0}, seu bot de suporte super amigo.\n\nPronto para ajudar. O que manda?\n"
 
 #: main.py:61
-msgid ""
-"/settings - Settings of your account\n"
-"\n"
-msgstr ""
-"/settings - Configurações da sua conta\n"
-"\n"
+msgid "/support - Get help\n"
+msgstr "/support - Obter ajuda\n"
 
-#: main.py:82
-msgid "Please, tell me what you need support with :)"
-msgstr "Por favor, me diga com o que você precisa de suporte :)"
+#: main.py:62
+msgid "/settings - Change language\n"
+msgstr "/settings - Mudar idioma\n"
 
-#: main.py:107
-msgid "Give me some time to think. Soon I will return to you with an answer."
-msgstr "Me dê um tempo para pensar. Em breve eu irei retornar com uma resposta."
+#: main.py:83
+msgid "Go for it! Just type your question or issue below."
+msgstr "Manda ver! É só digitar sua dúvida ou problema aqui embaixo."
 
-#: main.py:116
-msgid "Please, choose a language:\n"
-msgstr "Por favor, escolha uma linguagem:\n"
+#: main.py:112
+msgid "Pick your language:\n"
+msgstr "Escolha seu idioma:\n"
 
-#: main.py:152
+#: main.py:146
 #, python-brace-format
-msgid "Language updated to {0}"
-msgstr "Linguagem atualizada para {0}"
+msgid "All set! We'll chat in {0} from now on."
+msgstr "Tudo certo! Vamos conversar em {0} a partir de agora."
+
+#: main.py:149
+msgid "Hmm, I don't recognize that language. Please pick from the list."
+msgstr "Hmm, não reconheço esse idioma. Por favor, escolha na lista."
 
 #: main.py:157
-msgid "Unknown language! :("
-msgstr "Linguagem desconhecida! :("
-
-#: main.py:165
-msgid "Sorry, I don't know what you're asking for."
-msgstr "Desculpe, eu não sei o que você está pedindo."
+msgid "Oops, not sure what that command does. Try /support or /settings."
+msgstr "Ops, não sei o que esse comando faz. Tente /support ou /settings."
 
 #~ msgid "I'm Via Livre Bot and I came here to help you.\n"
 #~ msgstr "Eu sou o Via Livre Bot e vim aqui para te ajudar.\n"

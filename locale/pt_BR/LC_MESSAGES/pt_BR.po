@@ -17,7 +17,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: main.py\n"
 
 msgid ""
-"Hey there! I'm {0}, the official support bot.\n"
+"Hey there! I'm {0}, the official support for the @tgresearcherbot.\n"
 "\n"
 "To get help, just send your question, feedback, or issue directly into this chat. "
 "You can include photos and files. Our team will see it and get back to you as soon as possible.\n"

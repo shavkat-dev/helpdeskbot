@@ -1,7 +1,7 @@
 # Dockerfile
 
 # 1. Base Image
-FROM python:3.9-slim
+FROM python:3.12-slim
 
 # 2. Apply OS security patches
 # This is a critical security step. It updates the package lists and installs

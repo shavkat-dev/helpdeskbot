@@ -28,3 +28,14 @@ services:
     # We expose the Redis port only to the internal Docker network,
     # not to the host machine, for better security. The 'bot' container
     # can reach it using the service name 'redis'.
+    
+    # This line maps the named volume 'redis-data' to the '/data'
+    # directory inside the Redis container. This is where Redis is
+    # configured to store its persistence files (dump.rdb).
+    volumes:
+      - redis-data:/data
+
+# This top-level block declares the named volume. Docker will
+# manage its creation and lifecycle.
+volumes:
+  redis-data:

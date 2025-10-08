@@ -16,6 +16,7 @@ dispatcher = updater.dispatcher
 
 # Config the translations
 lang_pt = gettext.translation("helpdeskbot", localedir="locale", languages=["pt_BR"])
+lang_ru = gettext.translation("helpdeskbot", localedir="locale", languages=["ru_RU"])
 def _(msg): return msg
 
 # Connecting to Redis db
@@ -34,6 +35,8 @@ def user_language(func):
 
         if lang == "pt_BR":
             _ = lang_pt.gettext
+        elif lang == "ru_RU":
+            _ = lang_ru.gettext
         else:
             def _(msg): return msg
 
@@ -51,13 +54,12 @@ def start(bot, update):
     if config.START_MESSAGE:
         msg = config.START_MESSAGE
     else:
-        msg = _("Hello!\n")
-        msg += _("I'm {0} and I came here to help you.\n").format(me.first_name)
-        msg += _("What would you like to do?\n\n")
-        msg += _("/support - Opens a new support ticket\n")
-        msg += _("/settings - Settings of your account\n\n")
-    main_menu_keyboard = [[telegram.KeyboardButton('/support')],
-                          [telegram.KeyboardButton('/settings')]]
+        msg = _("Hey there! I'm {0}, your friendly support bot.\n\nReady to help. What's up?\n").format(me.first_name)
+
+    main_menu_keyboard = [
+        [telegram.KeyboardButton(_("/support - Get help\n"))],
+        [telegram.KeyboardButton(_("/settings - Change language\n"))]
+    ]
     reply_kb_markup = telegram.ReplyKeyboardMarkup(main_menu_keyboard,
                                                    resize_keyboard=True,
                                                    one_time_keyboard=True)
@@ -72,7 +74,7 @@ def support(bot, update):
         Sends the support message. Some kind of "How can I help you?".
     """
     bot.send_message(chat_id=update.message.chat_id,
-                     text=_("Please, tell me what you need support with :)"))
+                     text=_("Go for it! Just type your question or issue below."))
 
 
 @user_language
@@ -106,8 +108,7 @@ def support_message(bot, update):
             ex=604800 
         )
 
-        reply_text = config.REPLY_MESSAGE if config.REPLY_MESSAGE else _("Give me some time to think. Soon I will return to you with an answer.")
-        bot.send_message(chat_id=update.message.chat_id, text=reply_text)
+        # Confirmation message removed per updated product requirements.
     
     # Other messages in the group that are not replies are ignored.
 
@@ -117,12 +118,11 @@ def settings(bot, update):
     """
         Configure the messages language using a custom keyboard.
     """
-    msg = _("Please, choose a language:\n")
-    msg += "en_US - English (US)\n"
-    msg += "pt_BR - Português (Brasil)\n"
+    msg = _("Pick your language:\n")
     languages_keyboard = [
-        [telegram.KeyboardButton('en_US - English (US)')],
-        [telegram.KeyboardButton('pt_BR - Português (Brasil)')]
+        [telegram.KeyboardButton('🇺🇸 English')],
+        [telegram.KeyboardButton('🇷🇺 Русский')],
+        [telegram.KeyboardButton('🇧🇷 Português (Brasil)')]
     ]
     reply_kb_markup = telegram.ReplyKeyboardMarkup(languages_keyboard,
                                                    resize_keyboard=True,
@@ -138,16 +138,22 @@ def kb_settings_select(bot, update, groups):
         Updates the user's language based on it's choice.
     """
     chat_id = update.message.chat_id
-    language = groups[0]
-    languages = {"pt_BR": "Português (Brasil)", "en_US": "English (US)"}
+    choice = groups[0]
 
-    if language in languages.keys():
-        db.set(f"lang:{chat_id}", language)
+    languages = {
+        "English": ("en_US", "English"),
+        "Русский": ("ru_RU", "Русском"),
+        "Português (Brasil)": ("pt_BR", "Português (Brasil)")
+    }
+
+    if choice in languages:
+        lang_code, lang_name = languages[choice]
+        db.set(f"lang:{chat_id}", lang_code)
         bot.send_message(chat_id=chat_id,
-                         text=_("Language updated to {0}")
-                         .format(languages[language]))
+                         text=_("All set! We'll chat in {0} from now on.")
+                         .format(lang_name))
     else:
-        bot.send_message(chat_id=chat_id, text=_("Unknown language! :("))
+        bot.send_message(chat_id=chat_id, text=_("Hmm, I don't recognize that language. Please pick from the list."))
 
 
 @user_language
@@ -155,7 +161,7 @@ def unknown(bot, update):
     """
         Placeholder command when the user sends an unknown command.
     """
-    msg = _("Sorry, I don't know what you're asking for.")
+    msg = _("Oops, not sure what that command does. Try /support or /settings.")
     bot.send_message(chat_id=update.message.chat_id, text=msg)
 
 
@@ -166,7 +172,7 @@ support_handler = CommandHandler('support', support)
 settings_handler = CommandHandler('settings', settings)
 help_handler = CommandHandler('help', start)
 
-get_language_handler = RegexHandler('^([a-z]{2}_[A-Z]{2}) - .*',
+get_language_handler = RegexHandler('^.. (.*)',
                                     kb_settings_select,
                                     pass_groups=True)
 

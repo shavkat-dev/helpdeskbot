@@ -1,0 +1,31 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: helpdeskbot\n"
+"Language: ru_RU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Hey there! I'm {0}, your friendly support bot.\n\nReady to help. What's up?\n"
+msgstr "Привет! Я {0}, твой дружелюбный бот поддержки.\n\nГотов помочь. Что случилось?\n"
+
+msgid "/support - Get help\n"
+msgstr "/support - Получить помощь\n"
+
+msgid "/settings - Change language\n"
+msgstr "/settings - Сменить язык\n"
+
+msgid "Go for it! Just type your question or issue below."
+msgstr "Действуй! Просто напиши свой вопрос или проблему ниже."
+
+msgid "Pick your language:\n"
+msgstr "Выбери язык:\n"
+
+msgid "All set! We'll chat in {0} from now on."
+msgstr "Готово! Теперь будем общаться на {0}."
+
+msgid "Hmm, I don't recognize that language. Please pick from the list."
+msgstr "Хм, я не знаю такой язык. Пожалуйста, выбери из списка."
+
+msgid "Oops, not sure what that command does. Try /support or /settings."
+msgstr "Ой, не знаю такой команды. Попробуй /support или /settings."

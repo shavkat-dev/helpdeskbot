@@ -1,0 +1,32 @@
+# docker-compose.yml
+
+version: '3.8'
+
+services:
+  # The Helpdesk Bot Service
+  bot:
+    # 'build: .' tells Docker Compose to build the image from the Dockerfile
+    # in the current directory.
+    build: .
+    # 'restart: always' ensures the bot container will automatically restart
+    # if it crashes, making our setup more resilient.
+    restart: always
+    # 'env_file' loads environment variables from a .env file.
+    # This is the standard way to handle secrets and configuration.
+    env_file:
+      - .env
+    # 'depends_on' tells Docker Compose to start the 'redis' service
+    # before starting the 'bot' service.
+    depends_on:
+      - redis
+
+  # The Redis Service
+  redis:
+    # We use the official Redis image from Docker Hub.
+    # 'alpine' is a very lightweight version.
+    image: "redis:6-alpine"
+    # 'restart: always' for the same resilience reasons.
+    restart: always
+    # We expose the Redis port only to the internal Docker network,
+    # not to the host machine, for better security. The 'bot' container
+    # can reach it using the service name 'redis'.

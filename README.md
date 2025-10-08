@@ -12,35 +12,66 @@ When a client sends a support message to the bot, it forwards the message to you
 3. The client receives the answer and the process continues.  
 ![The client receives the answer screenshot](screenshots/screenshot3.png)
 
-# Installation
+# Installation & Usage
 
-1. Install the requirements
+The project source now lives in the `support-bot/` directory so it can be containerised easily. You can run it either with Docker Compose or directly with Python.
 
-```
-    $ pip install -r requirements.txt
-    $ sudo apt-get install redis-server
-```
+## Running with Docker Compose
 
-2. Setup your bot token and the chat to which it will forward messages in the `config.ini` file.
-
-3. Run the redis-server
+1. Copy the example environment file and fill in your secrets:
 
 ```
-    $ redis-server
+cp support-bot/.env.template support-bot/.env
 ```
 
-4. In another instance, open the Python shell and run:
+   Edit `support-bot/.env` and set the `TELEGRAM_TOKEN` and `GROUP_CHAT_ID` values (and optionally override any other settings).
+
+2. Build and start the services:
 
 ```
-    from main import updater
-    updater.start_polling()
+cd support-bot
+docker compose up --build
 ```
 
-As long as you want your bot responding, keep this running. When you want to stop, just run:
+   Docker Compose will start both the bot service and a Redis instance. The bot container is configured to restart automatically if it stops unexpectedly.
+
+3. To stop the services press `Ctrl+C` in the terminal running Compose and then run:
 
 ```
-    updater.stop()
+docker compose down
 ```
+
+## Running without Docker
+
+1. Install the Python requirements and Redis:
+
+```
+pip install -r support-bot/requirements.txt
+sudo apt-get install redis-server
+```
+
+2. Set the required environment variables before starting the bot:
+
+```
+export TELEGRAM_TOKEN=your_token
+export GROUP_CHAT_ID=your_group_chat_id
+export REDIS_HOST=localhost  # Optional overrides
+```
+
+3. Run the redis-server:
+
+```
+redis-server
+```
+
+4. In another terminal, start the bot from the `support-bot` directory:
+
+```
+cd support-bot
+python -c "from main import updater; updater.start_polling()"
+```
+
+As long as you want your bot responding, keep this running. When you want to stop, just run `updater.stop()` inside a Python shell or interrupt the process with `Ctrl+C`.
 
 **PS:** Keep in mind that you will have to generate the locale `.mo` files.
 

@@ -1,20 +1,16 @@
-import os.path
-import telegram
-import redis
 import gettext
-import configparser
+import redis
+import telegram
 
 from functools import wraps
 from telegram.ext import Updater, CommandHandler, MessageHandler,\
                          RegexHandler, Filters
 
-# Configuring bot
-config = configparser.ConfigParser()
-config.read_file(open('config.ini'))
+import config
 
 # Connecting to Telegram API
 # Updater retrieves information and dispatcher connects commands
-updater = Updater(token=config['DEFAULT']['token'])
+updater = Updater(token=config.TOKEN)
 dispatcher = updater.dispatcher
 
 # Config the translations
@@ -22,9 +18,9 @@ lang_pt = gettext.translation("pt_BR", localedir="locale", languages=["pt_BR"])
 def _(msg): return msg
 
 # Connecting to Redis db
-db = redis.StrictRedis(host=config['DB']['host'],
-                       port=config['DB']['port'],
-                       db=config['DB']['db'])
+db = redis.StrictRedis(host=config.REDIS_HOST,
+                       port=config.REDIS_PORT,
+                       db=config.REDIS_DB)
 
 
 def user_language(func):
@@ -54,11 +50,14 @@ def start(bot, update):
     me = bot.get_me()
 
     # Welcome message
-    msg = _("Hello!\n")
-    msg += _("I'm {0} and I came here to help you.\n").format(me.first_name)
-    msg += _("What would you like to do?\n\n")
-    msg += _("/support - Opens a new support ticket\n")
-    msg += _("/settings - Settings of your account\n\n")
+    if config.START_MESSAGE:
+        msg = config.START_MESSAGE
+    else:
+        msg = _("Hello!\n")
+        msg += _("I'm {0} and I came here to help you.\n").format(me.first_name)
+        msg += _("What would you like to do?\n\n")
+        msg += _("/support - Opens a new support ticket\n")
+        msg += _("/settings - Settings of your account\n\n")
 
     # Commands menu
     main_menu_keyboard = [[telegram.KeyboardButton('/support')],
@@ -100,11 +99,11 @@ def support_message(bot, update):
     else:
         # If it is a request from the user, the bot forwards the message
         # to the group
-        bot.forward_message(chat_id=int(config['DEFAULT']['support_chat_id']),
+        bot.forward_message(chat_id=config.GROUP_CHAT_ID,
                             from_chat_id=update.message.chat_id,
                             message_id=update.message.message_id)
         bot.send_message(chat_id=update.message.chat_id,
-                         text=_("Give me some time to think. Soon I will return to you with an answer."))
+                         text=config.REPLY_MESSAGE if config.REPLY_MESSAGE else _("Give me some time to think. Soon I will return to you with an answer."))
 
 
 @user_language

@@ -1,3 +1,5 @@
+# main.py (Corrected for python-telegram-bot v5.0.0)
+
 import gettext
 import redis
 import telegram
@@ -9,7 +11,6 @@ from telegram.ext import Updater, CommandHandler, MessageHandler,\
 import config
 
 # Connecting to Telegram API
-# Updater retrieves information and dispatcher connects commands
 updater = Updater(token=config.TOKEN)
 dispatcher = updater.dispatcher
 
@@ -20,21 +21,20 @@ def _(msg): return msg
 # Connecting to Redis db
 db = redis.StrictRedis(host=config.REDIS_HOST,
                        port=config.REDIS_PORT,
-                       db=config.REDIS_DB)
+                       db=config.REDIS_DB,
+                       decode_responses=True) # Easier to work with strings
 
 
 def user_language(func):
     @wraps(func)
     def wrapped(bot, update, *args, **kwargs):
-        lang = db.get(str(update.message.chat_id))
+        lang = db.get(f"lang:{update.message.chat_id}") # Use a prefix for clarity
 
         global _
 
-        if lang == b"pt_BR":
-            # If language is pt_BR, translates
+        if lang == "pt_BR":
             _ = lang_pt.gettext
         else:
-            # If not, leaves as en_US
             def _(msg): return msg
 
         result = func(bot, update, *args, **kwargs)
@@ -48,8 +48,6 @@ def start(bot, update):
         Shows an welcome message and help info about the available commands.
     """
     me = bot.get_me()
-
-    # Welcome message
     if config.START_MESSAGE:
         msg = config.START_MESSAGE
     else:
@@ -58,15 +56,11 @@ def start(bot, update):
         msg += _("What would you like to do?\n\n")
         msg += _("/support - Opens a new support ticket\n")
         msg += _("/settings - Settings of your account\n\n")
-
-    # Commands menu
     main_menu_keyboard = [[telegram.KeyboardButton('/support')],
                           [telegram.KeyboardButton('/settings')]]
     reply_kb_markup = telegram.ReplyKeyboardMarkup(main_menu_keyboard,
                                                    resize_keyboard=True,
                                                    one_time_keyboard=True)
-
-    # Send the message with menu
     bot.send_message(chat_id=update.message.chat_id,
                      text=msg,
                      reply_markup=reply_kb_markup)
@@ -84,26 +78,38 @@ def support(bot, update):
 @user_language
 def support_message(bot, update):
     """
-        Receives a message from the user.
-
-        If the message is a reply to the user, the bot speaks with the user
-        sending the message content. If the message is a request from the user,
-        the bot forwards the message to the support group.
+        Receives a message from the user or a reply from an agent.
     """
-    if update.message.reply_to_message and \
-       update.message.reply_to_message.forward_from:
-        # If it is a reply to the user, the bot replies the user
-        bot.send_message(chat_id=update.message.reply_to_message
-                         .forward_from.id,
-                         text=update.message.text)
-    else:
-        # If it is a request from the user, the bot forwards the message
-        # to the group
-        bot.forward_message(chat_id=config.GROUP_CHAT_ID,
-                            from_chat_id=update.message.chat_id,
-                            message_id=update.message.message_id)
-        bot.send_message(chat_id=update.message.chat_id,
-                         text=config.REPLY_MESSAGE if config.REPLY_MESSAGE else _("Give me some time to think. Soon I will return to you with an answer."))
+    # Check if the message is from the support group AND is a reply
+    if update.message.chat_id == config.GROUP_CHAT_ID and update.message.reply_to_message:
+        # It's a reply from an agent in the group.
+        # Look up the original user's chat_id in Redis.
+        user_chat_id = db.get(f"ticket:{update.message.reply_to_message.message_id}")
+        
+        if user_chat_id:
+            # We found the user, send them the agent's reply.
+            bot.send_message(chat_id=user_chat_id, text=update.message.text)
+    
+    # Check if the message is a private message to the bot
+    elif update.message.chat.type == 'private':
+        # It's a message from a user. Forward it to the support group.
+        forwarded_message = bot.forward_message(
+            chat_id=config.GROUP_CHAT_ID,
+            from_chat_id=update.message.chat_id,
+            message_id=update.message.message_id
+        )
+        
+        # Store the mapping in Redis. Expire after 7 days (604800 seconds).
+        db.set(
+            f"ticket:{forwarded_message.message_id}",
+            update.message.chat_id,
+            ex=604800 
+        )
+
+        reply_text = config.REPLY_MESSAGE if config.REPLY_MESSAGE else _("Give me some time to think. Soon I will return to you with an answer.")
+        bot.send_message(chat_id=update.message.chat_id, text=reply_text)
+    
+    # Other messages in the group that are not replies are ignored.
 
 
 @user_language
@@ -111,12 +117,9 @@ def settings(bot, update):
     """
         Configure the messages language using a custom keyboard.
     """
-    # Languages message
     msg = _("Please, choose a language:\n")
     msg += "en_US - English (US)\n"
     msg += "pt_BR - Português (Brasil)\n"
-
-    # Languages menu
     languages_keyboard = [
         [telegram.KeyboardButton('en_US - English (US)')],
         [telegram.KeyboardButton('pt_BR - Português (Brasil)')]
@@ -124,8 +127,6 @@ def settings(bot, update):
     reply_kb_markup = telegram.ReplyKeyboardMarkup(languages_keyboard,
                                                    resize_keyboard=True,
                                                    one_time_keyboard=True)
-
-    # Sends message with languages menu
     bot.send_message(chat_id=update.message.chat_id,
                      text=msg,
                      reply_markup=reply_kb_markup)
@@ -138,22 +139,15 @@ def kb_settings_select(bot, update, groups):
     """
     chat_id = update.message.chat_id
     language = groups[0]
+    languages = {"pt_BR": "Português (Brasil)", "en_US": "English (US)"}
 
-    # Available languages
-    languages = {"pt_BR": "Português (Brasil)",
-                 "en_US": "English (US)"}
-
-    # If the language choice matches the expression AND is a valid choice
     if language in languages.keys():
-        # Sets the user's language
-        db.set(str(chat_id), language)
+        db.set(f"lang:{chat_id}", language)
         bot.send_message(chat_id=chat_id,
                          text=_("Language updated to {0}")
                          .format(languages[language]))
     else:
-        # If it is not a valid choice, sends an warning
-        bot.send_message(chat_id=chat_id,
-                         text=_("Unknown language! :("))
+        bot.send_message(chat_id=chat_id, text=_("Unknown language! :("))
 
 
 @user_language
@@ -162,32 +156,40 @@ def unknown(bot, update):
         Placeholder command when the user sends an unknown command.
     """
     msg = _("Sorry, I don't know what you're asking for.")
-    bot.send_message(chat_id=update.message.chat_id,
-                     text=msg)
+    bot.send_message(chat_id=update.message.chat_id, text=msg)
 
-# creating handlers
+
+# --- Handler Definitions ---
+
 start_handler = CommandHandler('start', start)
 support_handler = CommandHandler('support', support)
-support_msg_handler = MessageHandler([Filters.text], support_message)
 settings_handler = CommandHandler('settings', settings)
+help_handler = CommandHandler('help', start)
+
 get_language_handler = RegexHandler('^([a-z]{2}_[A-Z]{2}) - .*',
                                     kb_settings_select,
                                     pass_groups=True)
-help_handler = CommandHandler('help', start)
+
+# Handler for any command that wasn't recognized by the handlers above.
 unknown_handler = MessageHandler([Filters.command], unknown)
 
-# adding handlers
+# Handler for any text message. This logic relies on this handler being added LAST.
+support_msg_handler = MessageHandler([Filters.text], support_message)
+
+
+# --- Handler Registration Order ---
+# The order is critical for the logic to work correctly.
+
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(support_handler)
 dispatcher.add_handler(settings_handler)
-dispatcher.add_handler(get_language_handler)
 dispatcher.add_handler(help_handler)
+
+dispatcher.add_handler(get_language_handler)
+
+# The handler for unknown commands must be after all valid command handlers.
 dispatcher.add_handler(unknown_handler)
 
-# Message handler must be the last one
+# The general message handler MUST be last, so it only catches messages
+# that are not commands.
 dispatcher.add_handler(support_msg_handler)
-
-# to run this program:
-# updater.start_polling()
-# to stop it:
-# updater.stop()

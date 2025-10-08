@@ -34,10 +34,15 @@ def user_language(func):
         global _
 
         if lang == "pt_BR":
+            # User has chosen Portuguese
             _ = lang_pt.gettext
-        elif lang == "ru_RU":
+        elif lang == "ru_RU" or lang is None:
+            # User has chosen Russian OR is a new user (lang is None)
+            # In both cases, we serve Russian.
             _ = lang_ru.gettext
         else:
+            # This block now correctly handles the "en_US" case,
+            # and acts as a safe fallback to English for any other value.
             def _(msg): return msg
 
         result = func(bot, update, *args, **kwargs)
@@ -57,8 +62,8 @@ def start(bot, update):
         msg = _("Hey there! I'm {0}, your friendly support bot.\n\nReady to help. What's up?\n").format(me.first_name)
 
     main_menu_keyboard = [
-        [telegram.KeyboardButton(_("/support - Get help\n"))],
-        [telegram.KeyboardButton(_("/settings - Change language\n"))]
+        [telegram.KeyboardButton(_("/support - Get help"))],
+        [telegram.KeyboardButton(_("/settings - Change language"))]
     ]
     reply_kb_markup = telegram.ReplyKeyboardMarkup(main_menu_keyboard,
                                                    resize_keyboard=True,
@@ -172,7 +177,7 @@ support_handler = CommandHandler('support', support)
 settings_handler = CommandHandler('settings', settings)
 help_handler = CommandHandler('help', start)
 
-get_language_handler = RegexHandler('^.. (.*)',
+get_language_handler = RegexHandler('^(?:🇺🇸 |🇷🇺 |🇧🇷 )(English|Русский|Português \(Brasil\))',
                                     kb_settings_select,
                                     pass_groups=True)
 

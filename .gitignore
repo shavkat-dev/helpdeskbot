@@ -3,5 +3,5 @@
 *.mo
 
 __pycache__
-support-bot/.env
+.venv
 .env

@@ -21,4 +21,4 @@ RUN msgfmt locale/pt_BR/LC_MESSAGES/pt_BR.po -o locale/pt_BR/LC_MESSAGES/helpdes
 RUN msgfmt locale/ru_RU/LC_MESSAGES/ru_RU.po -o locale/ru_RU/LC_MESSAGES/helpdeskbot.mo
 
 # 7. Command to run the application
-CMD ["python", "-c", "from main import updater; updater.start_polling()"]
+CMD ["python", "main.py"]

@@ -1,4 +1,3 @@
-```markdown
 # HelpDesk Bot (Enhanced Fork)
 > A modern, containerized, and multilingual Telegram bot that works as a reliable helpdesk, based on the original work by Júlia Rizza.
 
@@ -107,4 +106,3 @@ SOFTWARE.
 
 ## Acknowledgments
 A special thanks to **Júlia Rizza** for creating the original [helpdeskbot](https://github.com/juliarizza/helpdeskbot), which served as the foundation for this enhanced version.
-```

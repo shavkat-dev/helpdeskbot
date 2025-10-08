@@ -4,7 +4,7 @@ import gettext
 import redis.asyncio as redis # Use the async version of the redis library
 import logging
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, RegexHandler
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 import config
 
@@ -22,7 +22,7 @@ translations = {
 }
 
 async def get_translator(chat_id: int, db: redis.Redis):
-    """Gets the correct translation function for a user."""
+    """Gets the correct translation function for a user. """
     lang = await db.get(f"lang:{chat_id}")
     if lang in translations:
         return translations[lang].gettext
@@ -117,7 +117,7 @@ def main():
     application.add_handler(CommandHandler("help", start))
     application.add_handler(CommandHandler("settings", settings))
     
-    application.add_handler(RegexHandler(r'^(?:🇺🇸 |🇷🇺 |🇧🇷 )(English|Русский|Português \(Brasil\))', kb_settings_select))
+    application.add_handler(MessageHandler(filters.Regex(r'^(?:🇺🇸 |🇷🇺 |🇧🇷 )(English|Русский|Português \(Brasil\))'), kb_settings_select))
     
     # Handler for all text messages (for support tickets and replies)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, support_message))
